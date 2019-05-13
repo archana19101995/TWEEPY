@@ -1,0 +1,16 @@
+
+def approve(request,id):
+    aprv=tbl_reg.objects.get(id=id)
+    if aprv.approve=="APPROVE":
+        password = User.objects.make_random_password(length=5, allowed_chars="abcdefghjkmnpqrstuvwxyz01234567889") # zvk0hawf8m6394
+        new=tbl_log.objects.create(username=aprv.email,password=password,usertype=aprv.usertype)
+        mail=smtplib.SMTP('smtp.mailgun.org',587)
+        mail.ehlo()
+        mail.starttls()
+        mail.login(settings.EMAIL_HOST_USER,settings.EMAIL_HOST_PASSWORD)
+        message= "Hello, this message is from TWEEPY-The Twitter Sentiment Analysis.Your username is " + new.username + " and password is " + new.password + ". Thank you."
+        email=aprv.email
+        mail.sendmail(settings.EMAIL_HOST_USER,email,message)
+        aprv.approve="APPROVED!!!"
+        aprv.save()
+    return HttpResponseRedirect(reverse('view_users'))
